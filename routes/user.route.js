@@ -13,7 +13,7 @@ const mongoose = require("mongoose");
 ////////////////////////////////////////////////////////////////////////
 
 // .post() route ==> to process form data
-router.post("/signup", (req, res, next) => {
+router.post("/auth/signup", (req, res, next) => {
   const { username, email, password, about, image } = req.body;
 
   if (!username || !email || !password || !about || !image) {
@@ -57,6 +57,7 @@ router.post("/signup", (req, res, next) => {
         createdAt: Date.now(),
       }).then((session) => {
         res.status(200).json({ accessToken: session._id, user });
+        res.render(`/auth/profile/:${userId}`);
       });
     })
     .catch((error) => {
@@ -78,7 +79,7 @@ router.post("/signup", (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////
 
 // .post() login route ==> to process form data
-router.post("/login", (req, res, next) => {
+router.post("/auth/login", (req, res, next) => {
   const { email, password } = req.body;
 
   if (email === "" || password === "") {
@@ -101,6 +102,7 @@ router.post("/login", (req, res, next) => {
           createdAt: Date.now(),
         }).then((session) => {
           res.status(200).json({ accessToken: session._id, user });
+          res.render(`/auth/profile/:${userId}`);
         });
       } else {
         res.status(200).json({ errorMessage: "Incorrect password." });
@@ -113,7 +115,7 @@ router.post("/login", (req, res, next) => {
 ///////////////////////////// LOGOUT ////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
-router.post("/logout", (req, res) => {
+router.post("/auth/logout", (req, res) => {
   Session.deleteOne({
     userId: req.body.accessToken,
   })
@@ -138,5 +140,45 @@ router.get("/session/:accessToken", (req, res) => {
   })
   .catch(err => res.status(500).json({errorMessage: err}))
 });
+
+router.get('/auth/profile/:id', (req, res) => {
+Session.findById({userId: req.body.accessToken})
+.then((session) => {
+  if (!session) {
+    res.status(200).json({
+      errorMessage: "Session does not exist",
+    });
+  } else {
+    res.render(`/auth/profile/:${userId}`)
+    };
+  })
+.catch(err => res.status(500).json({errorMessage: err}))
+});
+
+router.get('/auth/profile/edit/:id', (req, res) => {
+  res.render(`/auth/profile/edit/:${userId}`)
+});
+
+router.put('/auth/profile/edit/:id', (req, res) => {
+  const { username, email, password, about, image } = req.body;
+  const id = req.params.id;
+  User.findByIdAndUpdate(id, {username, email, password, about, image}, new: true)
+  .then(
+    res.render(`/auth/profile/:${id}`)
+  )
+  .catch(err => res.status(500).json({errorMessage: err}))
+});
+
+router.delete('/auth/profile/delete/:id', (req, res) => {
+  const id = req.params.id;
+  User.findByIdAndDelete(id)
+  .then(
+    res.render('/')
+  )
+  .catch(err => res.status(400).json({errorMessage:err}))
+});
+
+
+
 
 module.exports = router;

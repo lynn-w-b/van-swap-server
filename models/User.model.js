@@ -31,8 +31,12 @@ const userSchema = new Schema(
       required: [true, 'Image is required.'],
     },
     vans: {
-      [{type: Schema.Types.ObjectId,
-      ref:'Van'}]
+      type: Array,
+      items: {
+        van: Schema.Types.ObjectId,
+        ref: 'Van'
+      },
+      default: []
     }
   },
   {
