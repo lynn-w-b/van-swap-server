@@ -14,12 +14,12 @@ const mongoose = require("mongoose");
 
 // .post() route ==> to process form data
 router.post("/signup", (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, about, image } = req.body;
 
-  if (!username || !email || !password) {
+  if (!username || !email || !password || !about || !image) {
     res.status(200).json({
       errorMessage:
-        "All fields are mandatory. Please provide your username, email and password.",
+        "All fields are mandatory. Please provide your username, email, password, about information and image.",
     });
     return;
   }
@@ -47,6 +47,8 @@ router.post("/signup", (req, res, next) => {
         //     ^
         //     |            |--> this is placeholder (how we named returning value from the previous method (.hash()))
         password: hashedPassword,
+        about,
+        image
       });
     })
     .then((user) => {
@@ -63,7 +65,7 @@ router.post("/signup", (req, res, next) => {
       } else if (error.code === 11000) {
         res.status(200).json({
           errorMessage:
-            "Username and email need to be unique. Either username or email is already used.",
+            "Username and email need to be unique. Either username or email is already in use.",
         });
       } else {
         res.status(500).json({ errorMessage: error });
@@ -81,7 +83,7 @@ router.post("/login", (req, res, next) => {
 
   if (email === "" || password === "") {
     res.status(500).json({
-      errorMessage: "Please enter both, email and password to login.",
+      errorMessage: "Please enter both email and password to login.",
     });
     return;
   }
@@ -90,7 +92,7 @@ router.post("/login", (req, res, next) => {
     .then((user) => {
       if (!user) {
         res.status(200).json({
-          errorMessage: "Email is not registered. Try with other email.",
+          errorMessage: "Email is not registered. Try with another email.",
         });
         return;
       } else if (bcryptjs.compareSync(password, user.password)) {
