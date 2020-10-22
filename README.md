@@ -91,9 +91,9 @@ Swap Request model
 
 The url to your repository and to your deployed project
 
-[Front-end repository Link](https://github.com/lynn-w-b/van-swap-front-end)
+[Front-end repository Link](https://github.com/lynn-w-b/van-swap-client)
 
-[Server repository Link](https://github.com/lynn-w-b/van-swap-back-end)
+[Server repository Link](https://github.com/lynn-w-b/van-swap-server)
 
 [Deployed App Link](http://heroku.com)
 
