@@ -57,7 +57,7 @@ router.post("/auth/signup", (req, res, next) => {
         createdAt: Date.now(),
       }).then((session) => {
         res.status(200).json({ accessToken: session._id, user });
-        res.render(`/auth/profile/:${userId}`);
+        res.render(`/auth/profile/:${userId}`, user);
       });
     })
     .catch((error) => {
@@ -102,7 +102,7 @@ router.post("/auth/login", (req, res, next) => {
           createdAt: Date.now(),
         }).then((session) => {
           res.status(200).json({ accessToken: session._id, user });
-          res.render(`/auth/profile/:${userId}`);
+          res.render(`/auth/profile/:${userId}`, user);
         });
       } else {
         res.status(200).json({ errorMessage: "Incorrect password." });
@@ -162,9 +162,9 @@ router.get('/auth/profile/edit/:id', (req, res) => {
 router.put('/auth/profile/edit/:id', (req, res) => {
   const { username, email, password, about, image } = req.body;
   const id = req.params.id;
-  User.findByIdAndUpdate(id, {username, email, password, about, image}, new: true)
-  .then(
-    res.render(`/auth/profile/:${id}`)
+  User.findByIdAndUpdate({id}, {username, email, password, about, image}, {new: true})
+  .then((foundUser) => {
+    res.render(`/auth/profile/:${id}`, foundUser)}
   )
   .catch(err => res.status(500).json({errorMessage: err}))
 });
@@ -177,8 +177,5 @@ router.delete('/auth/profile/delete/:id', (req, res) => {
   )
   .catch(err => res.status(400).json({errorMessage:err}))
 });
-
-
-
 
 module.exports = router;
