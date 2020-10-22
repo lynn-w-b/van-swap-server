@@ -13,7 +13,7 @@ const mongoose = require("mongoose");
 ////////////////////////////////////////////////////////////////////////
 
 // .post() route ==> to process form data
-router.post("/auth/signup", (req, res, next) => {
+router.post("/user/signup", (req, res, next) => {
   const { username, email, password, about, image } = req.body;
 
   if (!username || !email || !password || !about || !image) {
@@ -57,7 +57,7 @@ router.post("/auth/signup", (req, res, next) => {
         createdAt: Date.now(),
       }).then((session) => {
         res.status(200).json({ accessToken: session._id, user });
-        res.render(`/auth/profile/:${userId}`, user);
+        res.render(`/user/profile/:${userId}`, user);
       });
     })
     .catch((error) => {
@@ -79,7 +79,7 @@ router.post("/auth/signup", (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////
 
 // .post() login route ==> to process form data
-router.post("/auth/login", (req, res, next) => {
+router.post("/user/login", (req, res, next) => {
   const { email, password } = req.body;
 
   if (email === "" || password === "") {
@@ -102,7 +102,7 @@ router.post("/auth/login", (req, res, next) => {
           createdAt: Date.now(),
         }).then((session) => {
           res.status(200).json({ accessToken: session._id, user });
-          res.render(`/auth/profile/:${userId}`, user);
+          res.render(`/user/profile/:${userId}`, user);
         });
       } else {
         res.status(200).json({ errorMessage: "Incorrect password." });
@@ -115,7 +115,7 @@ router.post("/auth/login", (req, res, next) => {
 ///////////////////////////// LOGOUT ////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
-router.post("/auth/logout", (req, res) => {
+router.post("/user/logout", (req, res) => {
   Session.deleteOne({
     userId: req.body.accessToken,
   })
@@ -125,7 +125,7 @@ router.post("/auth/logout", (req, res) => {
     .catch((error) => res.status(500).json({ errorMessage: error }));
 });
 
-router.get("/session/:accessToken", (req, res) => {
+router.get("/user/session/:accessToken", (req, res) => {
   const { accessToken } = req.params;
   Session.findById({ _id: accessToken }).populate("userId").then((session) => {
     if (!session) {
@@ -141,7 +141,7 @@ router.get("/session/:accessToken", (req, res) => {
   .catch(err => res.status(500).json({errorMessage: err}))
 });
 
-router.get('/auth/profile/:id', (req, res) => {
+router.get('/user/profile/:id', (req, res) => {
 Session.findById({userId: req.body.accessToken})
 .then((session) => {
   if (!session) {
@@ -149,27 +149,27 @@ Session.findById({userId: req.body.accessToken})
       errorMessage: "Session does not exist",
     });
   } else {
-    res.render(`/auth/profile/:${userId}`)
+    res.render(`/user/profile/:${userId}`)
     };
   })
 .catch(err => res.status(500).json({errorMessage: err}))
 });
 
-router.get('/auth/profile/edit/:id', (req, res) => {
-  res.render(`/auth/profile/edit/:${userId}`)
+router.get('/user/profile/edit/:id', (req, res) => {
+  res.render(`/user/profile/edit/:${userId}`)
 });
 
-router.put('/auth/profile/edit/:id', (req, res) => {
+router.put('/user/profile/edit/:id', (req, res) => {
   const { username, email, password, about, image } = req.body;
   const id = req.params.id;
   User.findByIdAndUpdate({id}, {username, email, password, about, image}, {new: true})
   .then((foundUser) => {
-    res.render(`/auth/profile/:${id}`, foundUser)}
+    res.render(`/user/profile/:${id}`, foundUser)}
   )
   .catch(err => res.status(500).json({errorMessage: err}))
 });
 
-router.delete('/auth/profile/delete/:id', (req, res) => {
+router.delete('/user/profile/delete/:id', (req, res) => {
   const id = req.params.id;
   User.findByIdAndDelete(id)
   .then(
