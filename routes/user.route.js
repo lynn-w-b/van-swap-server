@@ -13,13 +13,13 @@ const mongoose = require("mongoose");
 ////////////////////////////////////////////////////////////////////////
 
 // .post() route ==> to process form data
-router.post("/user/signup", (req, res, next) => {
-  const { username, email, password, about, image } = req.body;
+router.post("/signup", (req, res, next) => {
+  const { fullname, email, password, dateofbirth, location, about } = req.body;
 
-  if (!username || !email || !password || !about || !image) {
+  if (!username || !email || !password || !dateofbirth || !location || !about) {
     res.status(200).json({
       errorMessage:
-        "All fields are mandatory. Please provide your username, email, password, about information and image.",
+        "All fields are mandatory. Please provide your full name, email, password, date of birth, location and about information.",
     });
     return;
   }
@@ -41,14 +41,15 @@ router.post("/user/signup", (req, res, next) => {
     .then((hashedPassword) => {
       return User.create({
         // username: username
-        username,
+        fullname,
         email,
         // password => this is the key from the User model
         //     ^
         //     |            |--> this is placeholder (how we named returning value from the previous method (.hash()))
         password: hashedPassword,
-        about,
-        image
+        dateofbirth,
+        location,
+        about
       });
     })
     .then((user) => {
@@ -66,7 +67,7 @@ router.post("/user/signup", (req, res, next) => {
       } else if (error.code === 11000) {
         res.status(200).json({
           errorMessage:
-            "Username and email need to be unique. Either username or email is already in use.",
+            "Email must be unique. Email is already in use.",
         });
       } else {
         res.status(500).json({ errorMessage: error });
@@ -79,7 +80,7 @@ router.post("/user/signup", (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////
 
 // .post() login route ==> to process form data
-router.post("/user/login", (req, res, next) => {
+router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
 
   if (email === "" || password === "") {
@@ -101,8 +102,9 @@ router.post("/user/login", (req, res, next) => {
           userId: user._id,
           createdAt: Date.now(),
         }).then((session) => {
-          res.status(200).json({ accessToken: session._id, user });
-          res.render(`/user/profile/:${userId}`, user);
+          res.status(200).json({ accessToken: session._id });
+          localStorage.setItem("accessToken", `${accessToken}`)
+          // res.render(`/user/profile/:${userId}`, user);
         });
       } else {
         res.status(200).json({ errorMessage: "Incorrect password." });
@@ -115,7 +117,7 @@ router.post("/user/login", (req, res, next) => {
 ///////////////////////////// LOGOUT ////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
-router.post("/user/logout", (req, res) => {
+router.post("/logout", (req, res) => {
   Session.deleteOne({
     userId: req.body.accessToken,
   })
@@ -125,7 +127,7 @@ router.post("/user/logout", (req, res) => {
     .catch((error) => res.status(500).json({ errorMessage: error }));
 });
 
-router.get("/user/session/:accessToken", (req, res) => {
+router.get("/session/:accessToken", (req, res) => {
   const { accessToken } = req.params;
   Session.findById({ _id: accessToken }).populate("userId").then((session) => {
     if (!session) {
@@ -141,7 +143,7 @@ router.get("/user/session/:accessToken", (req, res) => {
   .catch(err => res.status(500).json({errorMessage: err}))
 });
 
-router.get('/user/profile/:id', (req, res) => {
+router.get('/profile/:id', (req, res) => {
 Session.findById({userId: req.body.accessToken})
 .then((session) => {
   if (!session) {
@@ -149,31 +151,32 @@ Session.findById({userId: req.body.accessToken})
       errorMessage: "Session does not exist",
     });
   } else {
-    res.render(`/user/profile/:${userId}`)
+    // res.render(`/user/profile/:${userId}`)
     };
   })
 .catch(err => res.status(500).json({errorMessage: err}))
 });
 
-router.get('/user/profile/edit/:id', (req, res) => {
-  res.render(`/user/profile/edit/:${userId}`)
-});
+// router.get('/profile/edit/:id', (req, res) => {
+//   res.render(`/profile/edit/:${userId}`)
+// });
 
-router.put('/user/profile/edit/:id', (req, res) => {
+router.put('/profile/edit/:id', (req, res) => {
   const { username, email, password, about, image } = req.body;
   const id = req.params.id;
   User.findByIdAndUpdate({id}, {username, email, password, about, image}, {new: true})
   .then((foundUser) => {
-    res.render(`/user/profile/:${id}`, foundUser)}
+    res.render(`/profile/:${id}`, foundUser)}
   )
   .catch(err => res.status(500).json({errorMessage: err}))
 });
 
-router.delete('/user/profile/delete/:id', (req, res) => {
+router.delete('/profile/delete/:id', (req, res) => {
   const id = req.params.id;
   User.findByIdAndDelete(id)
   .then(
-    res.render('/')
+     res.render('/')
+    
   )
   .catch(err => res.status(400).json({errorMessage:err}))
 });
