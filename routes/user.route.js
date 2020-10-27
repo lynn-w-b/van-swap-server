@@ -15,8 +15,8 @@ const mongoose = require("mongoose");
 // .post() route ==> to process form data
 router.post("/signup", (req, res, next) => {
   const { fullname, email, password, dateofbirth, location, about } = req.body;
-
-  if (!username || !email || !password || !dateofbirth || !location || !about) {
+  console.log(req.body);
+  if (!fullname || !email || !password || !dateofbirth || !location || !about) {
     res.status(200).json({
       errorMessage:
         "All fields are mandatory. Please provide your full name, email, password, date of birth, location and about information.",
@@ -57,8 +57,9 @@ router.post("/signup", (req, res, next) => {
         userId: user._id,
         createdAt: Date.now(),
       }).then((session) => {
-        res.status(200).json({ accessToken: session._id, user });
-        res.render(`/user/profile/:${userId}`, user);
+        console.log(`Session created successfully, accesstoken ${session._id}, user ${user}`)
+        res.status(200).json({ accessToken: session._id, user:user });
+        router.get(`/user/profile/${user._id}`, user);
       });
     })
     .catch((error) => {
@@ -82,7 +83,7 @@ router.post("/signup", (req, res, next) => {
 // .post() login route ==> to process form data
 router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
-
+  console.log("Req.body=", req.body)
   if (email === "" || password === "") {
     res.status(500).json({
       errorMessage: "Please enter both email and password to login.",
@@ -102,9 +103,7 @@ router.post("/login", (req, res, next) => {
           userId: user._id,
           createdAt: Date.now(),
         }).then((session) => {
-          res.status(200).json({ accessToken: session._id });
-          localStorage.setItem("accessToken", `${accessToken}`)
-          // res.render(`/user/profile/:${userId}`, user);
+          res.status(200).json({ accessToken: session._id, user:user })
         });
       } else {
         res.status(200).json({ errorMessage: "Incorrect password." });
@@ -129,15 +128,14 @@ router.post("/logout", (req, res) => {
 
 router.get("/session/:accessToken", (req, res) => {
   const { accessToken } = req.params;
+  console.log(accessToken);
   Session.findById({ _id: accessToken }).populate("userId").then((session) => {
-    if (!session) {
+    if (session) {
       res.status(200).json({
         errorMessage: "Session does not exist",
       });
     } else {
-      res.status(200).json({
-        session
-      });
+      res.status(200).json({ session });
     }
   })
   .catch(err => res.status(500).json({errorMessage: err}))
@@ -150,16 +148,20 @@ Session.findById({userId: req.body.accessToken})
     res.status(200).json({
       errorMessage: "Session does not exist",
     });
-  } else {
-    // res.render(`/user/profile/:${userId}`)
-    };
-  })
+  }})
 .catch(err => res.status(500).json({errorMessage: err}))
 });
 
-// router.get('/profile/edit/:id', (req, res) => {
-//   res.render(`/profile/edit/:${userId}`)
-// });
+router.get('/profile/edit/:id', (req, res) => {
+  Session.findById({userId: req.body.accessToken})
+  .then((session) => {
+    if (!session) {
+      res.status(200).json({
+        errorMessage: "Session does not exist",
+      });
+    }})
+  .catch(err => res.status(500).json({errorMessage: err}))
+  })
 
 router.put('/profile/edit/:id', (req, res) => {
   const { username, email, password, about, image } = req.body;
@@ -175,8 +177,7 @@ router.delete('/profile/delete/:id', (req, res) => {
   const id = req.params.id;
   User.findByIdAndDelete(id)
   .then(
-     res.render('/')
-    
+     res.render('/') 
   )
   .catch(err => res.status(400).json({errorMessage:err}))
 });

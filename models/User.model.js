@@ -12,7 +12,6 @@ const userSchema = new Schema(
       required: [true, 'Email is required.'],
       match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address.'],
       unique: true,
-      lowercase: true,
       trim: true
     },
     password: {
@@ -23,13 +22,11 @@ const userSchema = new Schema(
       type: String,
       trim: true,
       required: [true, 'Date of Birth is required.'],
-      unique: true
     },
     location: {
       type: String,
       trim: true,
       required: [true, 'Location is required.'],
-      unique: true
     },
     about: {
       type: String,
@@ -39,7 +36,7 @@ const userSchema = new Schema(
     image: {
       type: String,
       trim: true,
-      required: [true, 'Image is required.'],
+      required: [false, 'Image is required.'],
     },
     vans: {
       type: Array,
