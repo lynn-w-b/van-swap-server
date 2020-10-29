@@ -49,7 +49,7 @@ router.post("/signup", (req, res, next) => {
         password: hashedPassword,
         dateofbirth,
         location,
-        about
+        about,
       });
     })
     .then((user) => {
@@ -57,9 +57,10 @@ router.post("/signup", (req, res, next) => {
         userId: user._id,
         createdAt: Date.now(),
       }).then((session) => {
-        console.log(`Session created successfully, accesstoken ${session._id}, user ${user}`)
-        res.status(200).json({ accessToken: session._id, user:user });
-        router.get(`/user/profile/${user._id}`, user);
+        console.log(
+          `Session created successfully, accesstoken ${session._id}, user ${user}`
+        );
+        res.status(200).json({ accessToken: session._id, user: user });
       });
     })
     .catch((error) => {
@@ -67,8 +68,7 @@ router.post("/signup", (req, res, next) => {
         res.status(200).json({ errorMessage: error.message });
       } else if (error.code === 11000) {
         res.status(200).json({
-          errorMessage:
-            "Email must be unique. Email is already in use.",
+          errorMessage: "Email must be unique. Email is already in use.",
         });
       } else {
         res.status(500).json({ errorMessage: error });
@@ -83,7 +83,7 @@ router.post("/signup", (req, res, next) => {
 // .post() login route ==> to process form data
 router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
-  console.log("Req.body=", req.body)
+  console.log("Req.body=", req.body);
   if (email === "" || password === "") {
     res.status(500).json({
       errorMessage: "Please enter both email and password to login.",
@@ -103,7 +103,7 @@ router.post("/login", (req, res, next) => {
           userId: user._id,
           createdAt: Date.now(),
         }).then((session) => {
-          res.status(200).json({ accessToken: session._id, user:user })
+          res.status(200).json({ accessToken: session._id, user: user });
         });
       } else {
         res.status(200).json({ errorMessage: "Incorrect password." });
@@ -117,69 +117,83 @@ router.post("/login", (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////
 
 router.post("/logout", (req, res) => {
-  Session.deleteOne({
-    userId: req.body.accessToken,
-  })
-    .then((session) => {
-      res.status(200).json({ success: "User was logged out" });
+  console.log("This will kill the session");
+  Session.findOne({ userId: req.body.accessToken })
+    .then((test1) => {
+      console.log(test1);
+      Session.deleteOne({
+        userId: req.body.accessToken,
+      }).then((session) => {
+        console.log(session);
+        Session.findOne({ userId: req.body.accessToken }).then((test2) => {
+          console.log(test2);
+          res.status(200).json({ success: "User was logged out" });
+        });
+      });
     })
     .catch((error) => res.status(500).json({ errorMessage: error }));
 });
 
 router.get("/session/:accessToken", (req, res) => {
   const { accessToken } = req.params;
-  console.log(accessToken);
-  Session.findById({ _id: accessToken }).populate("userId").then((session) => {
-    if (session) {
-      res.status(200).json({
-        errorMessage: "Session does not exist",
-      });
-    } else {
-      res.status(200).json({ session });
-    }
-  })
-  .catch(err => res.status(500).json({errorMessage: err}))
+  console.log("This is looking for the access token", accessToken);
+  Session.findById({ _id: accessToken })
+    .populate("userId")
+    .then((session) => {
+      if (!session) {
+        res.status(200).json({
+          errorMessage: "Session does not exist",
+        });
+      } else {
+        res.status(200).json({ session });
+      }
+    })
+    .catch((err) => res.status(500).json({ errorMessage: err }));
 });
 
-router.get('/profile/:id', (req, res) => {
-Session.findById({userId: req.body.accessToken})
-.then((session) => {
-  if (!session) {
-    res.status(200).json({
-      errorMessage: "Session does not exist",
-    });
-  }})
-.catch(err => res.status(500).json({errorMessage: err}))
+router.get("/profile/:id", (req, res) => {
+  Session.findById({ userId: req.body.accessToken })
+    .then((session) => {
+      if (!session) {
+        res.status(200).json({
+          errorMessage: "Session does not exist",
+        });
+      }
+    })
+    .catch((err) => res.status(500).json({ errorMessage: err }));
 });
 
-router.get('/profile/edit/:id', (req, res) => {
-  Session.findById({userId: req.body.accessToken})
-  .then((session) => {
-    if (!session) {
-      res.status(200).json({
-        errorMessage: "Session does not exist",
-      });
-    }})
-  .catch(err => res.status(500).json({errorMessage: err}))
-  })
+router.get("/profile/edit/:id", (req, res) => {
+  Session.findById({ userId: req.body.accessToken })
+    .then((session) => {
+      if (!session) {
+        res.status(200).json({
+          errorMessage: "Session does not exist",
+        });
+      }
+    })
+    .catch((err) => res.status(500).json({ errorMessage: err }));
+});
 
-router.put('/profile/edit/:id', (req, res) => {
+router.put("/profile/edit/:id", (req, res) => {
   const { username, email, password, about, image } = req.body;
   const id = req.params.id;
-  User.findByIdAndUpdate({id}, {username, email, password, about, image}, {new: true})
-  .then((foundUser) => {
-    res.render(`/profile/:${id}`, foundUser)}
+  User.findByIdAndUpdate(
+    { id },
+    { username, email, password, about, image },
+    { new: true }
   )
-  .catch(err => res.status(500).json({errorMessage: err}))
+    .then((foundUser) => {
+      res.render(`/profile/:${id}`, foundUser);
+    })
+    .catch((err) => res.status(500).json({ errorMessage: err }));
 });
 
-router.delete('/profile/delete/:id', (req, res) => {
+router.delete("/profile/delete/:id", (req, res) => {
   const id = req.params.id;
   User.findByIdAndDelete(id)
-  .then(
-     res.render('/') 
-  )
-  .catch(err => res.status(400).json({errorMessage:err}))
+    .then(res.render("/"))
+    .catch((err) => res.status(400).json({ errorMessage: err }));
 });
 
 module.exports = router;
