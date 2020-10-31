@@ -38,14 +38,10 @@ const userSchema = new Schema(
       trim: true,
       required: [false, 'Image is required.'],
     },
-    vans: {
-      type: Array,
-      items: {
-        van: Schema.Types.ObjectId,
+    van: {
+      type: Schema.Types.ObjectId,
         ref: 'Van'
-      },
-      default: []
-    }
+      }
   },
   {
     timestamps: true

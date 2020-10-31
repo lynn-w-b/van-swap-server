@@ -49,18 +49,18 @@ router.post("/signup", (req, res, next) => {
         password: hashedPassword,
         dateofbirth,
         location,
-        about,
+        about
       });
     })
     .then((user) => {
       Session.create({
         userId: user._id,
-        createdAt: Date.now(),
+        createdAt: Date.now()
       }).then((session) => {
         console.log(
-          `Session created successfully, accesstoken ${session._id}, user ${user}`
+          `Session created successfully, accesstoken ${session._id}, user ${user}}`
         );
-        res.status(200).json({ accessToken: session._id, user: user });
+        res.status(200).json({ accessToken: session._id, user: user, van: user.populate("van")});
       });
     })
     .catch((error) => {
@@ -103,8 +103,8 @@ router.post("/login", (req, res, next) => {
           userId: user._id,
           createdAt: Date.now(),
         }).then((session) => {
-          res.status(200).json({ accessToken: session._id, user: user });
-        });
+          res.status(200).json({ accessToken: session._id, user: user, van: user.populate("van")});
+          });
       } else {
         res.status(200).json({ errorMessage: "Incorrect password." });
       }
