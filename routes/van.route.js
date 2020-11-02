@@ -31,9 +31,10 @@ router.post('/newvan', (req,res) => {
         });
     });
 
-router.get('/myvan:id', (req,res) => {
+router.get('/myvan/:id', (req,res) => {
+    console.log(req.params);
     const {id} = req.params;
-    Van.findById({_id: id })
+    Van.findById(id)
     .then ((van) => {
         if(!van) {
             res.status(200).json({
