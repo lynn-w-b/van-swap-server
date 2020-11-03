@@ -151,24 +151,28 @@ router.get("/session/:accessToken", (req, res) => {
     .catch((err) => res.status(500).json({ errorMessage: err }));
 });
 
-router.get("/profile/:id", (req, res) => {
-  Session.findById({ userId: req.body.accessToken })
-    .then((session) => {
-      if (!session) {
-        res.status(200).json({
-          errorMessage: "Session does not exist",
-        });
-      }
-    })
-    .catch((err) => res.status(500).json({ errorMessage: err }));
+router.delete("/delete/session/:id", (req,res) => {
+  const {id} = req.params;
+  Session.findOneAndDelete({userId:id})
+  .then((response) => res.status(200).json({"success":{"message":"Session successfully deleted"}}))
+  .catch((err) => res.status(400).json({ errorMessage: err }));
 });
 
-router.get("/profile/edit/:id", (req, res) => {
-  Session.findById({ userId: req.body.accessToken })
-    .then((session) => {
-      if (!session) {
+router.post("/editprofile/:id", (req, res) => {
+  const { fullname, email, password, dateofbirth, location, about} = req.body;
+  console.log("Req.body=", req.body);
+  const { id } = req.params;
+  console.log("Req.params=", req.params);
+  User.findByIdAndUpdate(id, {fullname:fullname, email:email, password:password, dateofbirth:dateofbirth, location:location, about:about}, {new: true} )
+    .then((updatedUser) => {
+      console.log("Updated user details:", updatedUser)
+      if (!updatedUser) {
         res.status(200).json({
-          errorMessage: "Session does not exist",
+          errorMessage: "User does not exist",
+        });
+      } else {
+        res.status(200).json({
+          updatedUser
         });
       }
     })
@@ -177,7 +181,7 @@ router.get("/profile/edit/:id", (req, res) => {
 
 router.put("/profile/edit/:id", (req, res) => {
   const { username, email, password, about, image } = req.body;
-  const id = req.params.id;
+  const {id} = req.params.id;
   User.findByIdAndUpdate(
     { id },
     { username, email, password, about, image },
@@ -189,10 +193,10 @@ router.put("/profile/edit/:id", (req, res) => {
     .catch((err) => res.status(500).json({ errorMessage: err }));
 });
 
-router.delete("/profile/delete/:id", (req, res) => {
+router.delete("/delete/:id", (req, res) => {
   const id = req.params.id;
   User.findByIdAndDelete(id)
-    .then(res.render("/"))
+    .then((response) => res.status(200).json({"success":{"message":"User successfully deleted"}}))
     .catch((err) => res.status(400).json({ errorMessage: err }));
 });
 

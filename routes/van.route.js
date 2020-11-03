@@ -16,7 +16,7 @@ router.post('/newvan', (req,res) => {
         owner: user._id
     })
     .then((van) => {
-    User.findByIdAndUpdate(user._id, {van: van._id})
+    User.findByIdAndUpdate(user._id, {van: van._id}, {new:true})
     .then((updatedUser) => {
         console.log(`New van created successfully, van details: ${van} and added to user details:${updatedUser}`);
         res.status(200).json({van: van});
@@ -46,6 +46,34 @@ router.get('/myvan/:id', (req,res) => {
     })
     .catch((err) => res.status(500).json({errorMessage: err}));
 });
+
+router.post("/editvan/:id", (req, res) => {
+    const { make, model, year, location, about} = req.body;
+    console.log("Req.body=", req.body);
+    const { id } = req.params;
+    console.log("Req.params=", req.params);
+    Van.findByIdAndUpdate(id, {make:make, model:model, year:year, location:location, about:about}, {new: true} )
+      .then((updatedVan) => {
+        console.log("Updated van details:", updatedVan)
+        if (!updatedVan) {
+          res.status(200).json({
+            errorMessage: "Van does not exist",
+          });
+        } else {
+          res.status(200).json({
+            updatedVan
+          });
+        }
+      })
+      .catch((err) => res.status(500).json({ errorMessage: err }));
+  });
+
+  router.delete("/delete/:id", (req, res) => {
+    const id = req.params.id;
+    Van.findByIdAndDelete(id)
+      .then((response) => res.status(200).json({"success":{"message":"Van successfully deleted"}}))
+      .catch((err) => res.status(400).json({ errorMessage: err }));
+  });
   
 router.get('/allvans', (req, res) => {
     Van.find({})
