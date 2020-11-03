@@ -77,7 +77,10 @@ router.post("/editvan/:id", (req, res) => {
   
 router.get('/allvans', (req, res) => {
     Van.find({})
-    .then((vans) => res.render('/allvans', vans))
+    .then((vans) => {
+        console.log("allvans response:", vans);
+        res.status(200).json({vans});
+    })
     .catch(err => res.status(400).json({errorMessage: err}))
 });
 
