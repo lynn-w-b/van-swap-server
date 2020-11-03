@@ -84,4 +84,20 @@ router.get('/allvans', (req, res) => {
     .catch(err => res.status(400).json({errorMessage: err}))
 });
 
+router.get('/details/:id', (req,res) => {
+    console.log(req.params);
+    const {id} = req.params;
+    Van.findById(id)
+    .then ((van) => {
+        if(!van) {
+            res.status(200).json({
+                errorMessage: "Error retrieving van details!!",
+            });
+        } else {
+            res.status(200).json({ Van: van });
+        }
+    })
+    .catch((err) => res.status(500).json({errorMessage: err}));
+});
+
 module.exports = router;
