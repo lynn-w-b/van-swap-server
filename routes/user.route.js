@@ -200,4 +200,20 @@ router.delete("/delete/:id", (req, res) => {
     .catch((err) => res.status(400).json({ errorMessage: err }));
 });
 
+router.get('/details/:id', (req,res) => {
+  console.log(req.params);
+  const {id} = req.params;
+  User.findById(id)
+  .then ((user) => {
+      if(!user) {
+          res.status(200).json({
+              errorMessage: "Error retrieving user details!!",
+          });
+      } else {
+          res.status(200).json({ User: user });
+      }
+  })
+  .catch((err) => res.status(500).json({errorMessage: err}));
+});
+
 module.exports = router;

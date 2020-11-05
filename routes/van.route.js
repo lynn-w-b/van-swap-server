@@ -87,7 +87,7 @@ router.get('/allvans', (req, res) => {
 router.get('/details/:id', (req,res) => {
     console.log(req.params);
     const {id} = req.params;
-    Van.findById(id)
+    Van.findById(id).populate('owner')
     .then ((van) => {
         if(!van) {
             res.status(200).json({
