@@ -1,7 +1,8 @@
 const { Router } = require("express");
 const router = new Router();
 const User = require('../models/User.model');
-const Van = require('../models/Van.model')
+const Van = require('../models/Van.model');
+const Swap = require('../models/SwapRequest.model');
 const Session = require('../models/Session.model');
 const mongoose = require('mongoose');
 
@@ -99,5 +100,30 @@ router.get('/details/:id', (req,res) => {
     })
     .catch((err) => res.status(500).json({errorMessage: err}));
 });
+
+router.post('/swaprequest/:id', (req,res) => {
+  console.log(req.params);
+  const {id} = req.params;
+  const {swaprequester, vanowner, startdate, enddate, additionalInfo} = req.body;
+  Swap.create({
+    swaprequester,
+    vanowner, 
+    van: id,
+    startdate,
+    enddate,
+    additionalInfo
+})
+.then((swap) => {
+  User.findByIdAndUpdate(vanowner, {swapsreceived: swap._id}, {new:true})
+  .then((updatedUser) => {
+        User.findByIdAndUpdate(swaprequester, {swapssent: swap._id}, {new:true})
+        .then((user) => {
+          res.status(200).json({swap:swap})
+          .catch((err) => console.log(err))
+        })
+        .catch((err) => console.log(err)) 
+      })
+  })
+})
 
 module.exports = router;

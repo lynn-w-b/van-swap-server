@@ -2,25 +2,31 @@ const { Schema, model } = require('mongoose');
 
 const swapSchema = new Schema(
   {
-    user: {
+    swaprequester: {
       type: Schema.Types.ObjectId, 
       ref:'User', 
       required: [true, 'User is required.'],
-      unique: true
+    },
+    vanowner: {
+      type: Schema.Types.ObjectId, 
+      ref:'User', 
+      required: [true, 'User is required.'],
     },
     van: {
         type: Schema.Types.ObjectId, 
         ref:'Van', 
         required: [true, 'Van is required.'],
-        unique: true
       },
-    dates: {
+    startdate: {
+      type: String,
+      required: [true, 'Dates requested are required.']
+    },
+    enddate: {
       type: String,
       required: [true, 'Dates requested are required.']
     },
     additionalInfo: {
       type: String,
-      trim: true,
       required: [true, 'Additional information is required.'],
     },
     accepted: {

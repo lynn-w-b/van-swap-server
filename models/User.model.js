@@ -41,7 +41,9 @@ const userSchema = new Schema(
     van: {
       type: Schema.Types.ObjectId,
         ref: 'Van'
-      }
+      },
+    swapsreceived:[{type: Schema.Types.ObjectId, ref: 'Received'}],
+    swapssent:[{type: Schema.Types.ObjectId, ref: 'Sent'}]
   },
   {
     timestamps: true
