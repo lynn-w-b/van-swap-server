@@ -34,8 +34,7 @@ const userSchema = new Schema(
       required: [true, 'About section is required.'],
     },
     image: {
-      type: String,
-      trim: true
+      type: String
     },
     images: {
       type: Array,

@@ -2,6 +2,7 @@
 
 const { Router } = require("express");
 const router = new Router();
+const uploadCloud = require("../config/cloudinary.config");
 const bcryptjs = require("bcryptjs");
 const saltRounds = 10;
 const User = require("../models/User.model");
@@ -216,6 +217,16 @@ router.get('/details/:id', (req,res) => {
       }
   })
   .catch((err) => res.status(500).json({errorMessage: err}));
+});
+
+router.post("/upload/image", uploadCloud.single("image"), (req, res) => {
+  console.log(req.file.path);
+  res.json(req.file.path);
+});
+
+router.post("/upload/multi", uploadCloud.array("imageArray"), (req, res) => {
+  console.log(req.files);
+  res.json(req.files.map((el) => el.path));
 });
 
 module.exports = router;
