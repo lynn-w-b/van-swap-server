@@ -17,7 +17,11 @@ const vanSchema = new Schema(
         trim: true,
         required: [true, 'Year is required.']
     },
-    img: {
+    image: {
+        type: String,
+        trim: true
+    },
+    images: {
         type: Array,
         items: {
           img: String,

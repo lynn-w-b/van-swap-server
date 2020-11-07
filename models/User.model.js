@@ -35,15 +35,19 @@ const userSchema = new Schema(
     },
     image: {
       type: String,
-      trim: true,
-      required: [false, 'Image is required.'],
+      trim: true
+    },
+    images: {
+      type: Array,
+      items: {
+        img: String,
+      },
+      default: []
     },
     van: {
       type: Schema.Types.ObjectId,
         ref: 'Van'
-      },
-    swapsreceived:[{type: Schema.Types.ObjectId, ref: 'Received'}],
-    swapssent:[{type: Schema.Types.ObjectId, ref: 'Sent'}]
+      }
   },
   {
     timestamps: true

@@ -14,7 +14,7 @@ const mongoose = require("mongoose");
 
 // .post() route ==> to process form data
 router.post("/signup", (req, res, next) => {
-  const { fullname, email, password, dateofbirth, location, about } = req.body;
+  const { fullname, email, password, dateofbirth, location, about, image, images } = req.body;
   console.log(req.body);
   if (!fullname || !email || !password || !dateofbirth || !location || !about) {
     res.status(200).json({
@@ -49,7 +49,9 @@ router.post("/signup", (req, res, next) => {
         password: hashedPassword,
         dateofbirth,
         location,
-        about
+        about,
+        image,
+        images
       });
     })
     .then((user) => {

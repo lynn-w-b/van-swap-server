@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const router = new Router();
+const uploadCloud = require("../config/cloudinary.config");
 const User = require('../models/User.model');
 const Van = require('../models/Van.model');
 const Swap = require('../models/SwapRequest.model');
@@ -7,14 +8,16 @@ const Session = require('../models/Session.model');
 const mongoose = require('mongoose');
 
 router.post('/newvan', (req,res) => {
-    const {user, make, model, year, location, about} = req.body;
+    const {user, make, model, year, location, about, image, images} = req.body;
     Van.create({
         make,
         model,
         year,
         location,
         about, 
-        owner: user._id
+        owner: user._id,
+        image,
+        images
     })
     .then((van) => {
     User.findByIdAndUpdate(user._id, {van: van._id}, {new:true})
@@ -104,7 +107,7 @@ router.get('/details/:id', (req,res) => {
 router.post('/swaprequest/:id', (req,res) => {
   console.log(req.params);
   const {id} = req.params;
-  const {swaprequester, vanowner, startdate, enddate, additionalInfo} = req.body;
+  const {swaprequester, vanowner, startdate, enddate, additionalInfo} = req.body; 
   Swap.create({
     swaprequester,
     vanowner, 
@@ -114,16 +117,19 @@ router.post('/swaprequest/:id', (req,res) => {
     additionalInfo
 })
 .then((swap) => {
-  User.findByIdAndUpdate(vanowner, {swapsreceived: swap._id}, {new:true})
-  .then((updatedUser) => {
-        User.findByIdAndUpdate(swaprequester, {swapssent: swap._id}, {new:true})
-        .then((user) => {
-          res.status(200).json({swap:swap})
-          .catch((err) => console.log(err))
-        })
-        .catch((err) => console.log(err)) 
-      })
+  console.log("Van swap request successfully created");
+    return res.status(200).json({swap:swap});
   })
-})
+.catch((err) => console.log(err))
+});
+
+router.post("/upload/image", uploadCloud.single("image"), (req, res) => {
+  res.json(req.file.path);
+});
+
+router.post("/upload/multi", uploadCloud.array("imageArray"), (req, res) => {
+  res.json(req.files.map((el) => el.path));
+});
+
 
 module.exports = router;
