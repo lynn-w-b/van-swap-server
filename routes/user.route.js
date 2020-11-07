@@ -15,12 +15,12 @@ const mongoose = require("mongoose");
 
 // .post() route ==> to process form data
 router.post("/signup", (req, res, next) => {
-  const { fullname, email, password, dateofbirth, location, about, image, images } = req.body;
+  const { fullname, email, password, dateofbirth, location, about, image } = req.body;
   console.log(req.body);
-  if (!fullname || !email || !password || !dateofbirth || !location || !about) {
+  if (!fullname || !email || !password || !dateofbirth || !location || !about || !image) {
     res.status(200).json({
       errorMessage:
-        "All fields are mandatory. Please provide your full name, email, password, date of birth, location and about information.",
+        "All fields are mandatory. Please provide your full name, email, password, date of birth, location, image and about information.",
     });
     return;
   }
@@ -51,8 +51,7 @@ router.post("/signup", (req, res, next) => {
         dateofbirth,
         location,
         about,
-        image,
-        images
+        image
       });
     })
     .then((user) => {
@@ -157,7 +156,7 @@ router.get("/session/:accessToken", (req, res) => {
 router.delete("/delete/session/:id", (req,res) => {
   const {id} = req.params;
   Session.findOneAndDelete({userId:id})
-  .then((response) => res.status(200).json({"success":{"message":"Session successfully deleted"}}))
+  .then((response) => res.status(200).json({data:response.data}))
   .catch((err) => res.status(400).json({ errorMessage: err }));
 });
 
@@ -198,8 +197,8 @@ router.put("/profile/edit/:id", (req, res) => {
 
 router.delete("/delete/:id", (req, res) => {
   const id = req.params.id;
-  User.findByIdAndDelete(id)
-    .then((response) => res.status(200).json({"success":{"message":"User successfully deleted"}}))
+  User.findByIdAndDelete(id).populate("van")
+    .then((response) => res.status(200).json({Van:response.van}))
     .catch((err) => res.status(400).json({ errorMessage: err }));
 });
 
@@ -222,11 +221,6 @@ router.get('/details/:id', (req,res) => {
 router.post("/upload/image", uploadCloud.single("image"), (req, res) => {
   console.log(req.file.path);
   res.json(req.file.path);
-});
-
-router.post("/upload/multi", uploadCloud.array("imageArray"), (req, res) => {
-  console.log(req.files);
-  res.json(req.files.map((el) => el.path));
 });
 
 module.exports = router;

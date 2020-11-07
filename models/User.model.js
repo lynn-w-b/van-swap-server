@@ -31,17 +31,11 @@ const userSchema = new Schema(
     about: {
       type: String,
       trim: true,
-      required: [true, 'About section is required.'],
+      required: [true, 'About section is required.']
     },
     image: {
-      type: String
-    },
-    images: {
-      type: Array,
-      items: {
-        img: String,
-      },
-      default: []
+      type: String,
+      required:[true, "Image is required"]
     },
     van: {
       type: Schema.Types.ObjectId,
