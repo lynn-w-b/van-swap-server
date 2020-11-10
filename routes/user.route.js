@@ -24,7 +24,7 @@ router.post("/signup", (req, res, next) => {
     about,
     image,
   } = req.body;
-  console.log("backend signup triggered", req.body);
+  console.log("backend signup triggered");
   if (
     !fullname ||
     !email ||
