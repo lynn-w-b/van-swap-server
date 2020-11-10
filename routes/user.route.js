@@ -15,9 +15,25 @@ const mongoose = require("mongoose");
 
 // .post() route ==> to process form data
 router.post("/signup", (req, res, next) => {
-  const { fullname, email, password, dateofbirth, location, about, image } = req.body;
-  console.log(req.body);
-  if (!fullname || !email || !password || !dateofbirth || !location || !about || !image) {
+  const {
+    fullname,
+    email,
+    password,
+    dateofbirth,
+    location,
+    about,
+    image,
+  } = req.body;
+  console.log("backend signup triggered", req.body);
+  if (
+    !fullname ||
+    !email ||
+    !password ||
+    !dateofbirth ||
+    !location ||
+    !about ||
+    !image
+  ) {
     res.status(200).json({
       errorMessage:
         "All fields are mandatory. Please provide your full name, email, password, date of birth, location, image and about information.",
@@ -51,18 +67,23 @@ router.post("/signup", (req, res, next) => {
         dateofbirth,
         location,
         about,
-        image
+        image,
       });
+      console.log("new user created!!");
     })
     .then((user) => {
       Session.create({
         userId: user._id,
-        createdAt: Date.now()
+        createdAt: Date.now(),
       }).then((session) => {
         console.log(
           `Session created successfully, accesstoken ${session._id}, user ${user}}`
         );
-        res.status(200).json({ accessToken: session._id, user: user, van: user.populate("van")});
+        res.status(200).json({
+          accessToken: session._id,
+          user: user,
+          van: user.populate("van"),
+        });
       });
     })
     .catch((error) => {
@@ -105,8 +126,12 @@ router.post("/login", (req, res, next) => {
           userId: user._id,
           createdAt: Date.now(),
         }).then((session) => {
-          res.status(200).json({ accessToken: session._id, user: user, van: user.populate("van")});
+          res.status(200).json({
+            accessToken: session._id,
+            user: user,
+            van: user.populate("van"),
           });
+        });
       } else {
         res.status(200).json({ errorMessage: "Incorrect password." });
       }
@@ -153,28 +178,39 @@ router.get("/session/:accessToken", (req, res) => {
     .catch((err) => res.status(500).json({ errorMessage: err }));
 });
 
-router.delete("/delete/session/:id", (req,res) => {
-  const {id} = req.params;
-  Session.findOneAndDelete({userId:id})
-  .then((response) => res.status(200).json({data:response.data}))
-  .catch((err) => res.status(400).json({ errorMessage: err }));
+router.delete("/delete/session/:id", (req, res) => {
+  const { id } = req.params;
+  Session.findOneAndDelete({ userId: id })
+    .then((response) => res.status(200).json({ data: response.data }))
+    .catch((err) => res.status(400).json({ errorMessage: err }));
 });
 
 router.post("/editprofile/:id", (req, res) => {
-  const { fullname, email, password, dateofbirth, location, about} = req.body;
+  const { fullname, email, password, dateofbirth, location, about } = req.body;
   console.log("Req.body=", req.body);
   const { id } = req.params;
   console.log("Req.params=", req.params);
-  User.findByIdAndUpdate(id, {fullname:fullname, email:email, password:password, dateofbirth:dateofbirth, location:location, about:about}, {new: true} )
+  User.findByIdAndUpdate(
+    id,
+    {
+      fullname: fullname,
+      email: email,
+      password: password,
+      dateofbirth: dateofbirth,
+      location: location,
+      about: about,
+    },
+    { new: true }
+  )
     .then((updatedUser) => {
-      console.log("Updated user details:", updatedUser)
+      console.log("Updated user details:", updatedUser);
       if (!updatedUser) {
         res.status(200).json({
           errorMessage: "User does not exist",
         });
       } else {
         res.status(200).json({
-          updatedUser
+          updatedUser,
         });
       }
     })
@@ -183,7 +219,7 @@ router.post("/editprofile/:id", (req, res) => {
 
 router.put("/profile/edit/:id", (req, res) => {
   const { username, email, password, about, image } = req.body;
-  const {id} = req.params.id;
+  const { id } = req.params.id;
   User.findByIdAndUpdate(
     { id },
     { username, email, password, about, image },
@@ -197,25 +233,26 @@ router.put("/profile/edit/:id", (req, res) => {
 
 router.delete("/delete/:id", (req, res) => {
   const id = req.params.id;
-  User.findByIdAndDelete(id).populate("van")
-    .then((response) => res.status(200).json({Van:response.van}))
+  User.findByIdAndDelete(id)
+    .populate("van")
+    .then((response) => res.status(200).json({ Van: response.van }))
     .catch((err) => res.status(400).json({ errorMessage: err }));
 });
 
-router.get('/details/:id', (req,res) => {
+router.get("/details/:id", (req, res) => {
   console.log(req.params);
-  const {id} = req.params;
+  const { id } = req.params;
   User.findById(id)
-  .then ((user) => {
-      if(!user) {
-          res.status(200).json({
-              errorMessage: "Error retrieving user details!!",
-          });
+    .then((user) => {
+      if (!user) {
+        res.status(200).json({
+          errorMessage: "Error retrieving user details!!",
+        });
       } else {
-          res.status(200).json({ User: user });
+        res.status(200).json({ User: user });
       }
-  })
-  .catch((err) => res.status(500).json({errorMessage: err}));
+    })
+    .catch((err) => res.status(500).json({ errorMessage: err }));
 });
 
 router.post("/upload/image", uploadCloud.single("image"), (req, res) => {
