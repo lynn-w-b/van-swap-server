@@ -187,7 +187,15 @@ router.delete("/delete/session/:id", (req, res) => {
 });
 
 router.post("/editprofile/:id", (req, res) => {
-  const { fullname, email, password, dateofbirth, location, about } = req.body;
+  const {
+    fullname,
+    email,
+    password,
+    dateofbirth,
+    location,
+    about,
+    image,
+  } = req.body;
   console.log("Req.body=", req.body);
   const { id } = req.params;
   console.log("Req.params=", req.params);
@@ -200,6 +208,7 @@ router.post("/editprofile/:id", (req, res) => {
       dateofbirth: dateofbirth,
       location: location,
       about: about,
+      image: image,
     },
     { new: true }
   )
@@ -227,7 +236,7 @@ router.put("/profile/edit/:id", (req, res) => {
     { new: true }
   )
     .then((foundUser) => {
-      res.render(`/profile/:${id}`, foundUser);
+      res.render(`/profile/:${foundUser._id}`, foundUser);
     })
     .catch((err) => res.status(500).json({ errorMessage: err }));
 });
