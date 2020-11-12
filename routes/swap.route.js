@@ -24,7 +24,7 @@ router.post("/swaprequest/:id", (req, res) => {
     startdate,
     enddate,
     additionalInfo,
-    accepted: false,
+    status: "Pending decision",
   })
     .then((swap) => {
       console.log("Van swap request successfully created");
@@ -63,4 +63,60 @@ router.get("/swapsreceived/:id", (req, res) => {
     })
     .catch((err) => res.status(500).json({ errorMessage: err }));
 });
+
+router.get("/swapsdetails/:id", (req, res) => {
+  console.log(req.params.id);
+  const { id } = req.params;
+  Swap.findById(id)
+    .populate([
+      { path: "swaprequester", populate: { path: "van" } },
+      { path: "vanowner"},
+      { path: "van" },
+    ])
+    .then((swap) => {
+      if (!swap) {
+        res.status(200).json({
+          errorMessage: "No swap requests found",
+        });
+      } else {
+        res
+          .status(200)
+          .json({
+            Swap: swap,
+            Swaprequester: swap.swaprequester,
+            Vanowner: swap.vanowner,
+            Vantoswap: swap.swaprequester.van,
+            Van: swap.van,
+          });
+      }
+    })
+    .catch((err) => res.status(500).json({ errorMessage: err }));
+});
+
+router.post("/editswap/:id", (req, res) => {
+    const { status } = req.body;
+    console.log("Req.body=", req.body);
+    const { id } = req.params;
+    console.log("Req.params=", req.params);
+    Swap.findByIdAndUpdate(
+      id,
+      {
+        status: status
+      },
+      { new: true }
+    )
+      .then((updatedSwap) => {
+        console.log("Updated swap details:", updatedSwap);
+        if (!updatedSwap) {
+          res.status(200).json({
+            errorMessage: "Swap does not exist",
+          });
+        } else {
+          res.status(200).json({
+            updatedSwap,
+          });
+        }
+      })
+      .catch((err) => res.status(500).json({ errorMessage: err }));
+  });
 module.exports = router;

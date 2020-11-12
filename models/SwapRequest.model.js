@@ -29,8 +29,8 @@ const swapSchema = new Schema(
       type: String,
       required: [true, "Additional information is required."],
     },
-    accepted: {
-      type: Boolean,
+    status: {
+      type: String
     },
   },
   {
