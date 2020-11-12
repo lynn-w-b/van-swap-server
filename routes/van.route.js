@@ -105,7 +105,7 @@ router.get("/allvans", (req, res) => {
 });
 
 router.get("/details/:id", (req, res) => {
-  console.log(req.params);
+  console.log("backend vandetails route",req.params);
   const { id } = req.params;
   Van.findById(id)
     .populate("owner")
@@ -115,7 +115,7 @@ router.get("/details/:id", (req, res) => {
           errorMessage: "Error retrieving van details!!",
         });
       } else {
-        console.log(van, van.owner);
+        console.log("response from backend vandetails route",van);
         res.status(200).json({ Van: van, Owner: van.owner });
       }
     })

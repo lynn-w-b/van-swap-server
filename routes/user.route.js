@@ -114,7 +114,7 @@ router.post("/login", (req, res, next) => {
     return;
   }
 
-  User.findOne({ email })
+  User.findOne({ email }).populate("van")
     .then((user) => {
       if (!user) {
         res.status(200).json({
@@ -129,7 +129,7 @@ router.post("/login", (req, res, next) => {
           res.status(200).json({
             accessToken: session._id,
             user: user,
-            van: user.populate("van"),
+            van: user.van,
           });
         });
       } else {
