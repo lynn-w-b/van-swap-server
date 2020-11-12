@@ -24,7 +24,7 @@ router.post("/swaprequest/:id", (req, res) => {
     startdate,
     enddate,
     additionalInfo,
-    status: "Pending decision",
+    decision: "Pending decision",
   })
     .then((swap) => {
       console.log("Van swap request successfully created");
@@ -94,14 +94,14 @@ router.get("/swapsdetails/:id", (req, res) => {
 });
 
 router.post("/editswap/:id", (req, res) => {
-    const { status } = req.body;
+    const { decision } = req.body;
     console.log("Req.body=", req.body);
     const { id } = req.params;
     console.log("Req.params=", req.params);
     Swap.findByIdAndUpdate(
       id,
       {
-        status: status
+        decision: decision
       },
       { new: true }
     )

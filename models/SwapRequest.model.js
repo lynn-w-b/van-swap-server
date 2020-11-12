@@ -29,7 +29,7 @@ const swapSchema = new Schema(
       type: String,
       required: [true, "Additional information is required."],
     },
-    status: {
+    decision: {
       type: String
     },
   },
