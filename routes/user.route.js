@@ -255,6 +255,24 @@ router.get("/details/:id", (req, res) => {
     .catch((err) => res.status(500).json({ errorMessage: err }));
 });
 
+router.get("/details/:id", (req, res) => {
+  console.log(req.params);
+  const { id } = req.params;
+  User.findById(id)
+  .populate("van")
+    .then((user) => {
+      console.log("uservan=", user.van);
+      if (!user) {
+        res.status(200).json({
+          errorMessage: "Error retrieving user details!!",
+        });
+      } else {
+        res.status(200).json({ User: user, Van: user.van });
+      }
+    })
+    .catch((err) => res.status(500).json({ errorMessage: err }));
+});
+
 router.post("/upload/image", uploadCloud.single("image"), (req, res) => {
   console.log(req.file.path);
   res.json(req.file.path);

@@ -16,7 +16,7 @@ router.post("/newvan", (req, res) => {
     location,
     about,
     owner: user._id,
-    images
+    images,
   })
     .then((van) => {
       User.findByIdAndUpdate(user._id, { van: van._id }, { new: true }).then(
@@ -61,7 +61,14 @@ router.post("/editvan/:id", (req, res) => {
   console.log("Req.params=", req.params);
   Van.findByIdAndUpdate(
     id,
-    { make: make, model: model, year: year, location: location, about: about, images: images },
+    {
+      make: make,
+      model: model,
+      year: year,
+      location: location,
+      about: about,
+      images: images,
+    },
     { new: true }
   )
     .then((updatedVan) => {
@@ -108,35 +115,11 @@ router.get("/details/:id", (req, res) => {
           errorMessage: "Error retrieving van details!!",
         });
       } else {
-        res.status(200).json({ Van: van });
+        console.log(van, van.owner);
+        res.status(200).json({ Van: van, Owner: van.owner });
       }
     })
     .catch((err) => res.status(500).json({ errorMessage: err }));
-});
-
-router.post("/swaprequest/:id", (req, res) => {
-  console.log(req.params);
-  const { id } = req.params;
-  const {
-    swaprequester,
-    vanowner,
-    startdate,
-    enddate,
-    additionalInfo,
-  } = req.body;
-  Swap.create({
-    swaprequester,
-    vanowner,
-    van: id,
-    startdate,
-    enddate,
-    additionalInfo,
-  })
-    .then((swap) => {
-      console.log("Van swap request successfully created");
-      return res.status(200).json({ swap: swap });
-    })
-    .catch((err) => console.log(err));
 });
 
 router.post("/upload/multi", uploadCloud.array("imageArray"), (req, res) => {
