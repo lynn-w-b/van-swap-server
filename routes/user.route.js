@@ -114,7 +114,8 @@ router.post("/login", (req, res, next) => {
     return;
   }
 
-  User.findOne({ email }).populate("van")
+  User.findOne({ email })
+    .populate("van")
     .then((user) => {
       if (!user) {
         res.status(200).json({
@@ -204,13 +205,13 @@ router.post("/editprofile/:id", (req, res) => {
   )
     .then((updatedUser) => {
       console.log("Updated user details:", updatedUser);
-      if (!updatedUser) {
+      if (updatedUser) {
         res.status(200).json({
-          errorMessage: "User does not exist",
+          User: updatedUser,
         });
       } else {
         res.status(200).json({
-          updatedUser,
+          errorMessage: "User does not exist",
         });
       }
     })
@@ -259,7 +260,7 @@ router.get("/details/:id", (req, res) => {
   console.log(req.params);
   const { id } = req.params;
   User.findById(id)
-  .populate("van")
+    .populate("van")
     .then((user) => {
       console.log("uservan=", user.van);
       if (!user) {
