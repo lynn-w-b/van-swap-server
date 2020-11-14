@@ -24,7 +24,7 @@ router.post("/swaprequest/:id", (req, res) => {
     startdate,
     enddate,
     additionalInfo,
-    decision: "Pending decision",
+    decision: "Pending Approval",
   })
     .then((swap) => {
       console.log("Van swap request successfully created");
