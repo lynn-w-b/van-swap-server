@@ -94,17 +94,11 @@ router.get("/swapsdetails/:id", (req, res) => {
 });
 
 router.post("/editswap/:id", (req, res) => {
-    const { decision } = req.body;
+    const  {decision}  = req.body;
     console.log("Req.body=", req.body);
     const { id } = req.params;
     console.log("Req.params=", req.params);
-    Swap.findByIdAndUpdate(
-      id,
-      {
-        decision: decision
-      },
-      { new: true }
-    )
+    Swap.findByIdAndUpdate(id, {decision: decision},{ new: true })
       .then((updatedSwap) => {
         console.log("Updated swap details:", updatedSwap);
         if (!updatedSwap) {
